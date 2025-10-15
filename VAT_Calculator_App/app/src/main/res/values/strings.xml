@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">VAT Calculator App</string>
+    <string name="product">Product</string>
+    <string name="product_name">Product name</string>
+    <string name="price">Price</string>
+    <string name="vat">VAT</string>
+    <string name="total_price">Total price: %s</string>
+</resources>
