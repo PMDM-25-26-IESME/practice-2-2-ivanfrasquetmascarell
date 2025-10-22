@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,8 +30,9 @@ import java.text.DecimalFormat
 
 @Composable
 fun ProductLayout() {
-    var amountInput by remember { mutableStateOf("") }
-    var percentageInput by remember { mutableStateOf("") }
+    var amountInput by rememberSaveable { mutableStateOf("") }
+    var percentageInput by rememberSaveable { mutableStateOf("") }
+    var productName by rememberSaveable { mutableStateOf("") }
 
     val amount = amountInput.toDoubleOrNull() ?: 0.0
     val percentage = (percentageInput.toDoubleOrNull() ?: 0.0)
@@ -52,8 +54,10 @@ fun ProductLayout() {
                 .align(alignment = Alignment.Start)
         )
         EditField(
-            value = "",
-            onValueChanged = {},
+            value = productName,
+            onValueChanged = { nuevoTexto ->
+                productName = nuevoTexto
+            },
             modifier = Modifier
                 .padding(bottom = 8.dp)
                 .fillMaxWidth(),
