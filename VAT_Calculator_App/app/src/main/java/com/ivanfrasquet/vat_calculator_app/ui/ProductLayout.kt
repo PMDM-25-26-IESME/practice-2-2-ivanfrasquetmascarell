@@ -1,11 +1,11 @@
 package com.ivanfrasquet.vat_calculator_app.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.content.MediaType.Companion.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,11 +21,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,30 +33,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ivanfrasquet.vat_calculator_app.R
-import com.ivanfrasquet.vat_calculator_app.ui.theme.VAT_Calculator_AppTheme
-import java.text.DecimalFormat
+import com.ivanfrasquet.vat_calculator_app.ui.ViewModels.VatCalculatorViewModel
 
 @Composable
-fun ProductLayout() {
-    var amountInput by rememberSaveable { mutableStateOf("") }
-    var percentageInput by rememberSaveable { mutableStateOf("") }
-    var productName by rememberSaveable { mutableStateOf("") }
-
-    val amount = amountInput.toDoubleOrNull() ?: 0.0
-    val percentage = (percentageInput.toDoubleOrNull() ?: 0.0)
-    val vat = calculateVat(amount, percentage)
-
+fun ProductLayout(
+    vatCalculatorViewModel: VatCalculatorViewModel = viewModel()
+) {
     Scaffold (
         topBar = {
             VAT_Calculator_App()
         }
     ){ it ->
+        val vatCalculatorUiState by vatCalculatorViewModel.uiState.collectAsState()
         Column(
             modifier = Modifier
-                .padding(it)
                 .statusBarsPadding()
-                .padding(horizontal = dimensionResource(id = R.dimen.padding_medium))
+                .fillMaxSize()
+                .padding(it)
+                .padding(horizontal = dimensionResource(id = R.dimen.padding_large))
                 .verticalScroll(rememberScrollState())
                 .safeDrawingPadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -69,17 +62,15 @@ fun ProductLayout() {
                 text = stringResource(R.string.product),
                 style = MaterialTheme.typography.displayLarge,
                 modifier = Modifier
-                    .padding(bottom = dimensionResource(id = R.dimen.padding_medium), top = dimensionResource(id = R.dimen.padding_medium))
+                    .padding(bottom = dimensionResource(id = R.dimen.padding_medium), top = dimensionResource(id = R.dimen.padding_large))
                     .align(alignment = Alignment.Start)
             )
             EditField(
-                value = productName,
-                onValueChanged = { nuevoTexto ->
-                    productName = nuevoTexto
-                },
+                value = vatCalculatorUiState.productInput,
+                onValueChanged = { vatCalculatorViewModel.updateProductInput(it)},
                 modifier = Modifier
+                    .padding(bottom = dimensionResource(id = R.dimen.padding_small))
                     .clip(MaterialTheme.shapes.small)
-                    .padding(bottom =  dimensionResource(id = R.dimen.padding_small))
                     .fillMaxWidth(),
                 label = R.string.product_name,
                 leadingIcon = R.drawable.outline_storefront_24,
@@ -89,9 +80,12 @@ fun ProductLayout() {
                 )
             )
             EditField(
-                value = amountInput,
-                onValueChanged = { amountInput = it },
-                modifier = Modifier.padding(bottom =  dimensionResource(id = R.dimen.padding_small)).fillMaxWidth().clip(MaterialTheme.shapes.small),
+                value = vatCalculatorUiState.amountInput,
+                onValueChanged = { vatCalculatorViewModel.updateAmountInput(it) },
+                modifier = Modifier
+                    .padding(bottom = dimensionResource(id = R.dimen.padding_small))
+                    .clip(MaterialTheme.shapes.small)
+                    .fillMaxWidth(),
                 label = R.string.price,
                 leadingIcon = R.drawable.money,
                 keyboardOptions = KeyboardOptions(
@@ -100,9 +94,12 @@ fun ProductLayout() {
                 )
             )
             EditField(
-                value = percentageInput,
-                onValueChanged = { percentageInput = it },
-                modifier = Modifier.padding(bottom =  dimensionResource(id = R.dimen.padding_large)).fillMaxWidth().clip(MaterialTheme.shapes.small),
+                value = vatCalculatorUiState.percentInput,
+                onValueChanged = { vatCalculatorViewModel.updateVatInput(it) },
+                modifier = Modifier
+                    .padding(bottom = dimensionResource(id = R.dimen.padding_large))
+                    .clip(MaterialTheme.shapes.small)
+                    .fillMaxWidth(),
                 label = R.string.vat,
                 leadingIcon = R.drawable.percent,
                 keyboardOptions = KeyboardOptions(
@@ -111,19 +108,12 @@ fun ProductLayout() {
                 )
             )
             Text(
-                text = stringResource(R.string.total_price, vat),
+                text = stringResource(R.string.total_price, vatCalculatorUiState.vat),
                 style = MaterialTheme.typography.displayMedium
             )
             Spacer(modifier = Modifier.height(150.dp))
-            }
         }
-
-}
-
-private fun calculateVat(amount: Double, vatPercent: Double = 15.0): String {
-    val vat = vatPercent / 100 * amount + amount
-    val decimalFormat = DecimalFormat("#0.00")
-    return decimalFormat.format(vat)
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -137,13 +127,12 @@ fun VAT_Calculator_App(modifier: Modifier = Modifier) {
                     painter = painterResource(id = R.drawable.ic_launcher_foreground),
                     contentDescription = "logo",
                     modifier = Modifier
-                        .padding(bottom =  dimensionResource(id = R.dimen.padding_large))
-                        .size(60.dp),
+                        .size(dimensionResource(id = R.dimen.image_size)),
                     contentScale = ContentScale.Fit
                 )
                 Text (
                     text = stringResource(R.string.app_name),
-                    style = MaterialTheme.typography.displayLarge,
+                    style = MaterialTheme.typography.displayMedium,
                 )
             }
         },
