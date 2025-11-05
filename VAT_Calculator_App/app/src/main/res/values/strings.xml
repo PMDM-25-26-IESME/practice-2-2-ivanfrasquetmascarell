@@ -1,8 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <resources>
     <string name="app_name">VAT Calculator App</string>
     <string name="product">Product</string>
-    <string name="product_name">Product name</string>
     <string name="price">Price</string>
     <string name="vat">VAT</string>
     <string name="total_price">Total price: %s</string>
+    <string name="vat_result">Vat Result</string>
+    <string name="back">Back</string>
+    <string name="next">Next</string>
+    <string name="vat_percent">VAT Percent: %s</string>
+    <string name="vat_amount">VAT Amount: %s</string>
+    <string name="product_name">Product name: %s</string>
+    <string name="vat_amount_total_bill">Product name: %s\n Price without VAT: %s\nTotal Bill: %s</string>
+    <string name="your_vat">Your vat</string>
+    <string name="share">Share</string>
 </resources>
